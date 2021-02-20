@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<title>Sync</title>
+{% endblock %}
+
+
+
+
+{% block body %}
+
+<button onclick="beginSync()">Sync</button>
+
+
+<div>
+
+  <ul>
+    {% for author_key, author_value in library.items() %}
+    
+    <li>{{author_key}}</li>
+
+    <ul>
+
+      
+      {% for book_key, book_value in author_value.items() %}
+      
+      <li
+      {% if book_value['previously_synced'] == 1 %}
+      class="previouslySynced"
+      {% else %}
+      class="notSynced"
+      {% endif %}
+
+      id="{{author_key}}/{{book_key}}"
+
+      onclick="toggleItem(this)"
+      
+      >{{book_key}}</li>
+      
+      {% endfor %}
+    </ul>
+    
+    {% endfor %}
+  </ul>
+    
+</div>
+
+
+<script>
+  function beginSync() {
+    let syncList = {
+      toBeSynced: [],
+      toBeRemoved: []
+    };
+
+    [...document.getElementsByClassName("toBeSynced")].forEach(function (arrayItem) {
+      syncList.toBeSynced.push(arrayItem.id);
+      arrayItem.className = "previouslySynced";
+    });
+    
+    [...document.getElementsByClassName("toBeRemoved")].forEach(function (arrayItem) {
+      syncList.toBeRemoved.push(arrayItem.id);
+      arrayItem.className = "notSynced";
+    });
+
+    fetch("http://192.168.1.2:5300/sync_folders", {
+      mode: 'no-cors',
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(syncList),
+    })
+  }
+
+  function toggleItem(item) {
+    console.log(item);
+
+    switch(item.className) {
+      case "toBeSynced":
+        item.className = "notSynced";
+        break;
+        
+      case "notSynced":
+        item.className = "toBeSynced";
+        break;
+
+      case "previouslySynced":
+        item.className = "toBeRemoved";
+        break;
+
+      case "toBeRemoved":
+        item.className = "previouslySynced";
+        break;
+
+      default:
+        console.log("No matches");
+    }
+  }
+</script>
+
+{% endblock %}

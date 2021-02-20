@@ -1,0 +1,15 @@
+.toBeSynced {
+  background-color: orange;
+}
+
+.notSynced {
+  background-color: white;
+}
+
+.previouslySynced {
+  background-color: green;
+}
+
+.toBeRemoved {
+  background-color: red;
+}
