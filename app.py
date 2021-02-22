@@ -18,39 +18,41 @@ app = Flask(__name__)
 @app.route('/')
 def index():
   def get_library():
+    # Read library from API
     json_library = requests.get(url='http://192.168.1.2:5200/get_library').json()
     
+    # Search for folders in destination folder
+
     audiobook_authors_path = "/mnt/plexmedia/Audiobooks_Sync"
-    previously_synced_audiobooks = {}
     author_dirpath, author_dirnames, author_filenames = next(os.walk(audiobook_authors_path))
     author_dirnames.remove(".stfolder") # Syncthing folder
 
     for author_dirname in author_dirnames:
-      previously_synced_audiobooks[author_dirname] = []
       audiobook_book_path = os.path.join(author_dirpath, author_dirname)
       book_dirpath, book_dirnames, book_filenames = next(os.walk(audiobook_book_path))
 
       for book_dirname in book_dirnames:
-        previously_synced_audiobooks[author_dirname].append(book_dirname)
+        json_library[author_dirname][book_dirname]["previously_synced"] = 1
 
-    print(previously_synced_audiobooks)
+        book_file_size_bytes = 0
 
-    for author in previously_synced_audiobooks:
-      print(f"* {author}")
-      for book in previously_synced_audiobooks[author]:
-        print(f"  * {book}")
+        audiobook_track_path = os.path.join(book_dirpath, book_dirname)
+        track_dirpath, track_dirnames, track_filenames = next(os.walk(audiobook_track_path))
+        track_filenames.sort()
 
-        json_library[author][book]["previously_synced"] = 1
+        for track_filename in track_filenames:
+          track_full_path = os.path.join(track_dirpath, track_filename)
+          
+          if(track_full_path.endswith(".mp3") or track_full_path.endswith(".m4a")):
+            book_file_size_bytes += os.path.getsize(track_full_path)
+          
+        json_library[author_dirname][book_dirname]["previously_synced_file_size_correct"] = json_library[author_dirname][book_dirname]["book_file_size_bytes"] == book_file_size_bytes
 
-
-    # print(json_library["Agatha Christie"])
     return json_library
   
   return render_template(
     'index.html',
-    # myname="Alan",
     library=get_library(),
-    # current_track=get_current_track()
   )
 
 
