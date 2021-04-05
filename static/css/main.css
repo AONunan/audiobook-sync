@@ -7,9 +7,21 @@
 }
 
 .previouslySynced {
-  background-color: #1daf00; /* Green */
+  background-color: #25dd00; /* Green */
 }
 
 .toBeRemoved {
   background-color: red;
+}
+
+#header {
+  position: fixed;
+  width: 100%;
+}
+
+#syncButton {
+  width: 10%;
+  height: 100px;
+  position: absolute;
+  right: 10px;
 }

@@ -9,10 +9,13 @@
 
 {% block body %}
 
-<button onclick="beginSync()">Sync</button>
+<div id="header">
+  <button id="syncButton" onclick="beginSync()">Sync</button>
+</div>
 
 
-<div>
+
+<div id="library">
 
   <ul>
     {% for author_key, author_value in library.items() %}
@@ -36,13 +39,13 @@
       onclick="toggleItem(this)"
       
       >
-      {{book_key}}
+      {{book_key}} ({{book_value['book_length']}}, {{book_value['book_file_size_MB']}} MB)
       
         {% if book_value['previously_synced'] == 1 %}
           {% if book_value['previously_synced_file_size_correct'] == True %}
           <em>(File sizes match between source and destination)</em>
           {% else %}
-          <em>(File sizes <b>do not match</b> between source and destination)</em>
+          <em><b>(File sizes do not match between source and destination)</b></em>
           {% endif %}
         {% endif %}
 
